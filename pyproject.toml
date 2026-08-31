@@ -1,17 +1,42 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "tinyhowl"
 version = "0.1.0"
-description = "Growable formant mouth for Tiny"
+description = "Growable formant mouth for Tiny. Writes sound, not the knowledge base."
 readme = "README.md"
 requires-python = ">=3.9"
+license = {file = "LICENSE.md"}
 dependencies = []
 
 [project.optional-dependencies]
 play = ["simpleaudio"]
+dev = ["pytest>=7.0", "pytest-cov", "coverage", "ruff>=0.5.6", "build"]
 
-[build-system]
-requires = ["setuptools>=61"]
-build-backend = "setuptools.build_meta"
+[project.scripts]
+tinyhowl = "tinyhowl.demo:main"
+
+[project.urls]
+Homepage = "https://github.com/guilt/tinyhowl"
+Repository = "https://github.com/guilt/tinyhowl"
 
 [tool.setuptools.packages.find]
 include = ["tinyhowl*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tinyhowl/tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["tinyhowl"]
+omit = ["tinyhowl/tests/*"]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+fail_under = 80.0
+
+[tool.ruff]
+line-length = 120

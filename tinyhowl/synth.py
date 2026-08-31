@@ -1,19 +1,15 @@
 from __future__ import annotations
-
-import math
-import struct
+import math, struct
 from array import array
-
 from .params import HowlParams
 from .traj import coo_decay
 
 SAMPLE_RATE = 16000
-FRAME = 128  # 8 ms
+FRAME = 128
 
-
-def synthesize_frame(params: HowlParams, phase: float, t_norm: float) -> tuple[list[float], float]:
-    """One 8 ms frame. No alloc beyond the returned list (seed; C port preallocates)."""
-    env = coo_decay(t_norm) * params.energy
+def synthesize_frame(params: HowlParams, phase: float, t_norm: float, envelope=None):
+    env_fn = envelope or coo_decay
+    env = env_fn(t_norm) * params.energy
     freq = params.base_pitch + params.pitch_var * math.sin(2 * math.pi * t_norm * 2.5)
     f1 = 550 * (1 + params.formant_shift)
     out = []
@@ -27,18 +23,15 @@ def synthesize_frame(params: HowlParams, phase: float, t_norm: float) -> tuple[l
         local += inc
     return out, local
 
-
-def synthesize_seconds(params: HowlParams, seconds: float = 0.45) -> array:
+def synthesize_seconds(params: HowlParams, seconds: float = 0.45, envelope=None):
     n_frames = max(1, int(seconds * SAMPLE_RATE / FRAME))
     samples = array("h")
     phase = 0.0
     for f in range(n_frames):
-        frame, phase = synthesize_frame(params, phase, f / n_frames)
+        frame, phase = synthesize_frame(params, phase, f / n_frames, envelope=envelope)
         for x in frame:
-            v = int(max(-1.0, min(1.0, x)) * 28000)
-            samples.append(v)
+            samples.append(int(max(-1.0, min(1.0, x)) * 28000))
     return samples
-
 
 def write_wav(path: str, samples: array) -> None:
     n = len(samples)
@@ -50,3 +43,6 @@ def write_wav(path: str, samples: array) -> None:
         fh.write(b"data")
         fh.write(struct.pack("<I", n * 2))
         samples.tofile(fh)
+
+def frame_ms() -> float:
+    return 1000.0 * FRAME / SAMPLE_RATE
