@@ -1,0 +1,18 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+# Howl is stdlib-only at v0.1. Optional speaker playback is the `play` extra.
+
+[dev-packages]
+pytest = ">=7.0"
+pytest-cov = "*"
+coverage = "*"
+ruff = ">=0.5.6"
+build = "*"
+simpleaudio = "*"
+
+[requires]
+python_version = "3.9"
