@@ -10,10 +10,18 @@ No Howl → Tiny is still complete (silent cache).
 
 ```bash
 python -m pip install -e ".[dev]"
+# or: pipenv install --dev
 make tests          # coverage gate 80%
 make examples       # writes examples/out/*.wav and vowels/
 tinyhowl coo /tmp/coo.wav
 tinyhowl say:mama /tmp/mama.wav
+```
+
+TinyEar takes this package as a *test* extra until PyPI:
+
+```bash
+pip install "tinyhowl @ git+https://github.com/guilt/tinyhowl.git@bananey"
+# later: pip install tinyhowl
 ```
 
 ## v0.1
