@@ -1,6 +1,6 @@
 PYTHON ?= python3
 .DEFAULT_GOAL := help
-.PHONY: help install test tests unit-tests coverage examples demo dataset clean format lint
+.PHONY: help install test tests unit-tests coverage examples demo dataset pipe clean format lint
 
 help: ## Show this help
 	@$(PYTHON) -c "import re; f=open('Makefile').read(); [print('  {:<24s} {}'.format(*m.groups())) for m in re.finditer(r'^([a-z_-]+):.*?## (.+)', f, re.M)]"
@@ -22,6 +22,10 @@ format: ## Ruff format
 
 lint: format ## Ruff check
 	-$(PYTHON) -m ruff check tinyhowl
+
+pipe: ## Emit a WAV on stdout (for TinyEar to ingest)
+	PYTHONPATH=. $(PYTHON) -m tinyhowl.demo coo - > /tmp/howl-coo.wav
+	@ls -l /tmp/howl-coo.wav
 
 demo: ## Write examples/out specials
 	mkdir -p examples/out
