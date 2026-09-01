@@ -21,6 +21,9 @@ tinyhowl = "tinyhowl.demo:main"
 [project.urls]
 Homepage = "https://github.com/guilt/tinyhowl"
 Repository = "https://github.com/guilt/tinyhowl"
+# Consumers (TinyEar `[howl]` extra) pin
+#   tinyhowl @ git+https://github.com/guilt/tinyhowl.git@bananey
+# until this lands on PyPI.
 
 [tool.setuptools.packages.find]
 include = ["tinyhowl*"]
