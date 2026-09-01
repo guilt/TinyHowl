@@ -33,16 +33,30 @@ def synthesize_seconds(params: HowlParams, seconds: float = 0.45, envelope=None)
             samples.append(int(max(-1.0, min(1.0, x)) * 28000))
     return samples
 
-def write_wav(path: str, samples: array) -> None:
+def wav_bytes(samples: array) -> bytes:
+    """RIFF/WAVE PCM16 mono header + samples. Safe to write on a pipe."""
     n = len(samples)
+    header = (
+        b"RIFF"
+        + struct.pack("<I", 36 + n * 2)
+        + b"WAVEfmt "
+        + struct.pack("<IHHIIHH", 16, 1, 1, SAMPLE_RATE, SAMPLE_RATE * 2, 2, 16)
+        + b"data"
+        + struct.pack("<I", n * 2)
+    )
+    return header + samples.tobytes()
+
+
+def write_wav(path: str, samples: array) -> None:
+    blob = wav_bytes(samples)
+    if path in ("-", "/dev/stdout"):
+        import sys
+
+        sys.stdout.buffer.write(blob)
+        sys.stdout.buffer.flush()
+        return
     with open(path, "wb") as fh:
-        fh.write(b"RIFF")
-        fh.write(struct.pack("<I", 36 + n * 2))
-        fh.write(b"WAVEfmt ")
-        fh.write(struct.pack("<IHHIIHH", 16, 1, 1, SAMPLE_RATE, SAMPLE_RATE * 2, 2, 16))
-        fh.write(b"data")
-        fh.write(struct.pack("<I", n * 2))
-        samples.tofile(fh)
+        fh.write(blob)
 
 def frame_ms() -> float:
     return 1000.0 * FRAME / SAMPLE_RATE
