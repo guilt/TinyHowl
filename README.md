@@ -34,3 +34,12 @@ Formant table lives in `datasets/formants.md` and `tinyhowl/vowels.py`. It is a
 lookup table of published average F1/F2/F3, not a recording dump.
 
 Watch size aim: code 70–150 KB flash, RAM 100–250 KB (Howl ≤ 0.35 MB with emotion).
+
+## stdout pipe
+
+`-` writes a complete WAV to stdout and logs to stderr. TinyEar can ingest it:
+
+```bash
+tinyhowl coo - > /tmp/coo.wav
+tinyhowl say:mama - | tinyear ingest - --out memory/ --stem mama
+```

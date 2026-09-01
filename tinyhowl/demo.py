@@ -15,30 +15,34 @@ SPECIALS = {
 }
 
 
+def render(kind: str):
+    if kind in SPECIALS:
+        return SPECIALS[kind]()
+    if kind.startswith("say:"):
+        return say(kind.split(":", 1)[1], baby_base())
+    raise KeyError(kind)
+
+
 def main(argv=None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     kind = argv[0] if argv else "coo"
-    out = Path(argv[1]) if len(argv) > 1 else Path(f"howl-{kind}.wav")
-    if kind in SPECIALS:
-        samples = SPECIALS[kind]()
-    elif kind.startswith("say:"):
-        word = kind.split(":", 1)[1]
-        try:
-            samples = say(word, baby_base())
-        except KeyError as e:
-            print(e)
-            return 1
-    else:
-        print("v0.1 specials:", ", ".join(SPECIALS))
-        print("english: say:mama say:hi say:no say:ba say:dada say:me")
+    raw_out = argv[1] if len(argv) > 1 else f"howl-{kind}.wav"
+    try:
+        samples = render(kind)
+    except KeyError:
+        print("v0.1 specials:", ", ".join(SPECIALS), file=sys.stderr)
+        print("english: say:mama say:hi say:no say:ba say:dada say:me", file=sys.stderr)
         return 1
-    write_wav(str(out), samples)
-    print(f"wrote {out} ({len(samples)} samples @ 16 kHz)")
+    piping = raw_out in ("-", "/dev/stdout")
+    write_wav(raw_out if piping else str(Path(raw_out)), samples)
+    print(f"wrote {raw_out} ({len(samples)} samples @ 16 kHz)", file=sys.stderr)
+    if piping:
+        return 0
     try:
         import simpleaudio
-        simpleaudio.WaveObject.from_wave_file(str(out)).play().wait_done()
+        simpleaudio.WaveObject.from_wave_file(str(Path(raw_out))).play().wait_done()
     except Exception:
-        print("(no playback stack; wav is enough)")
+        print("(no playback stack; wav is enough)", file=sys.stderr)
     return 0
 
 

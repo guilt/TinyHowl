@@ -19,5 +19,6 @@ Expect:
 - `examples/out/vowels/` has one wav per vowel in the formant table
 - unknown special prints the v0.1 list and exits 1
 - frame wall time on a laptop is under 8 ms (`examples/bench_frame.py`)
+- `tinyhowl coo -` writes a RIFF/WAVE blob on stdout (`make pipe`)
 
 No Howl installed → Tiny is still complete (silent cache).
