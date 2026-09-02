@@ -2,7 +2,7 @@ PYTHON ?= python3
 .DEFAULT_GOAL := help
 .PHONY: help install test tests unit-tests coverage examples demo dataset pipe clean format lint
 
-help: ## Show this help
+help:
 	@$(PYTHON) -c "import re; f=open('Makefile').read(); [print('  {:<24s} {}'.format(*m.groups())) for m in re.finditer(r'^([a-z_-]+):.*?## (.+)', f, re.M)]"
 
 install: ## Editable install with dev extras
@@ -13,14 +13,13 @@ test: tests
 tests: ## Pytest with branch coverage
 	PYTHONPATH=. $(PYTHON) -m pytest --cov-branch --cov=tinyhowl --cov-report=term-missing --cov-report=html tinyhowl/tests
 
-unit-tests: tests ## Alias
+unit-tests: tests
+coverage: tests
 
-coverage: tests ## Alias
-
-format: ## Ruff format
+format:
 	-$(PYTHON) -m ruff format tinyhowl examples
 
-lint: format ## Ruff check
+lint: format
 	-$(PYTHON) -m ruff check tinyhowl
 
 pipe: ## Emit a WAV on stdout (for TinyEar to ingest)
@@ -36,13 +35,14 @@ demo: ## Write examples/out specials
 	PYTHONPATH=. $(PYTHON) -m tinyhowl.demo say:mama examples/out/mama.wav
 	PYTHONPATH=. $(PYTHON) -m tinyhowl.demo say:hi examples/out/hi.wav
 
-dataset: ## Render bundled formant table to wav
+dataset: ## Render formant table + 23-atom inventory wavs
 	PYTHONPATH=. $(PYTHON) examples/vowels_dataset.py
+	PYTHONPATH=. $(PYTHON) examples/make_inventory.py
 
-examples: demo dataset ## Run example scripts
+examples: demo dataset
 	PYTHONPATH=. $(PYTHON) examples/coo.py
 	PYTHONPATH=. $(PYTHON) examples/say_mama.py
 	PYTHONPATH=. $(PYTHON) examples/bench_frame.py
 
-clean: ## Remove artifacts
-	rm -rf dist build *.egg-info .pytest_cache .coverage htmlcov junit_xml_test_report.xml examples/out howl-*.wav
+clean:
+	rm -rf dist build *.egg-info .pytest_cache .coverage htmlcov examples/out howl-*.wav datasets/wav
